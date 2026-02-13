@@ -39,12 +39,16 @@ jobs:
           npm install
           npm run build --if-present
           npm run test --if-present
-
+          
+      - name: Clean up frontend files
+        run: rm -rf frontend
+        working-directory: .
+  
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: node-app
-          path: .
+          path: backend/**
 
   deploy:
     runs-on: ubuntu-latest
@@ -77,5 +81,6 @@ jobs:
           package: .
 
           
+
 
 
