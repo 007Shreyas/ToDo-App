@@ -12,12 +12,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Node.js version
+      - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '22.x'
 
-      # 1. BUILD FRONTEND (This bakes the Backend URL into your JS files)
+      # 1. Build Frontend
       - name: Build Frontend
         working-directory: frontend
         run: |
@@ -26,23 +26,28 @@ jobs:
         env:
           VITE_API_URL: ${{ secrets.VITE_API_URL }}
 
-      # 2. BUILD BACKEND
+      # 2. Build Backend
       - name: Build Backend
         working-directory: backend
         run: |
           npm install
           npm run build --if-present
 
-      # 3. CLEANUP & PREPARE ARTIFACT
-      # We remove the unbuilt frontend source to keep the deployment package slim
-      - name: Remove source files
-        run: rm -rf frontend
+      # 3. Prepare the deployment folder
+      # We create a clean 'deploy' folder to avoid path nesting issues
+      - name: Prepare Deployment Folder
+        run: |
+          mkdir deploy
+          cp -r backend/* deploy/
+          # If your backend serves the frontend, copy it here:
+          # mkdir -p deploy/public
+          # cp -r frontend/dist/* deploy/public/
 
-      - name: Upload artifact for deployment job
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: node-app
-          path: backend/
+          path: deploy/
 
   deploy:
     runs-on: ubuntu-latest
@@ -50,13 +55,12 @@ jobs:
     permissions:
       id-token: write
       contents: read
-
     steps:
-      - name: Download artifact from build job
+      - name: Download artifact
         uses: actions/download-artifact@v4
         with:
           name: node-app
-          path: .
+          path: ./release # Download into a subfolder to keep root clean
 
       - name: Login to Azure
         uses: azure/login@v2
@@ -66,9 +70,7 @@ jobs:
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_D7B7EF8AD792443EAB9EE4018636CC94 }}
 
       - name: 'Deploy to Azure Web App'
-        id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
           app-name: 'ToDoApp-Backend'
-          slot-name: 'Production'
-          package: .
+          package: ./release
