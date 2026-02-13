@@ -23,7 +23,7 @@ jobs:
         with:
           node-version: '22.x'
 
-      - name: validate frontend build env:
+      - name: Validate frontend build env
         run: |
           if [ -z "${VITE_API_URL}" ]; then
              echo "VITE_API_URL is missing. Set Github Repository Variables -> VITE_API_URL (or secret) for this workflow."
@@ -77,4 +77,5 @@ jobs:
           package: .
 
           
+
 
