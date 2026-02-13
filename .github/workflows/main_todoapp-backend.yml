@@ -1,4 +1,4 @@
-name: Build and deploy Node.js app to Azure Web App - ToDoApp-Backend
+name: Deploy Node.js app to Azure Web App - ToDoApp-Backend
 
 on:
   push:
@@ -20,11 +20,11 @@ jobs:
         with:
           client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_4034EF035C424963A1823C64DF6C31DC }}
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_D2A5854D084F476EAF17BAAA61DAA539 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_D7B7EF8AD792443EAB9EE4018636CC94 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_D769918958262818296298718936CC94 }}
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
           app-name: 'ToDoApp-Backend'
           slot-name: 'Production'
-          package: .  # zip the whole repo
+          package: .  # zips the whole repo (Oryx ignores frontend/ due to PROJECT)
