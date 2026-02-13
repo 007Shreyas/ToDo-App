@@ -17,31 +17,17 @@ jobs:
         with:
           node-version: '22.x'
 
-      # 1. Build Frontend
-      - name: Build Frontend
-        working-directory: frontend
-        run: |
-          npm install
-          npm run build
-        env:
-          VITE_API_URL: ${{ secrets.VITE_API_URL }}
-
-      # 2. Build Backend
+      # Only build the Backend now
       - name: Build Backend
         working-directory: backend
         run: |
           npm install
           npm run build --if-present
 
-      # 3. Prepare the deployment folder
-      # We create a clean 'deploy' folder to avoid path nesting issues
       - name: Prepare Deployment Folder
         run: |
           mkdir deploy
           cp -r backend/* deploy/
-          # If your backend serves the frontend, copy it here:
-          # mkdir -p deploy/public
-          # cp -r frontend/dist/* deploy/public/
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -60,7 +46,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: node-app
-          path: ./release # Download into a subfolder to keep root clean
+          path: ./release
 
       - name: Login to Azure
         uses: azure/login@v2
